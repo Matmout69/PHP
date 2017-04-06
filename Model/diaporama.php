@@ -19,22 +19,23 @@ class Diapos extends BDD{
   }
 
   function Modifier($id, $ordre, $titre, $description){
-      $reqordre = $this -> executerRequete('SELECT Ordre FROM Image ORDER BY Ordre');
-      $resordre = $reqordre -> fetchAll();
-      foreach ($resordre as $ordrebase) {
-        if($ordrebase[0] = $ordre) {
+      $reqordre = $this -> executerRequete("SELECT Ordre from Image where ImageID != ? ORDER BY Ordre", array($id));
+      $ordresBase = $reqordre->fetchAll(PDO::FETCH_ASSOC);
+      $existe = 0;
+      foreach($ordresBase as $key => $ordreBase){
+        if($ordreBase['Ordre'] == $ordre){
           $existe = 1;
         }
       }
-      if ($existe == 1) {
+      if($existe == 1){
         return 5;
-      }
-      else {
-        $this -> executerRequete('UPDATE image SET Ordre = ?, Date_Modification = ? WHERE ImageID = ?', array($ordre, date('Y-m-d'), $id));
-        $this -> executerRequete('UPDATE image_description SET Titre = ?, Description = ? WHERE ImageID = ?', array($titre, $description, $id));
+      }else{
+        $this -> executerRequete('UPDATE image SET Ordre = ? , Date_Modification = ? WHERE ImageID = ?', array($ordre, date('Y-m-d'), $id));
+        $this -> executerRequete('UPDATE image_description SET Titre = ? , Description = ? WHERE ImageID = ?', array($titre, $description, $id));
         return 0;
       }
-  }
+      }
+
 
   function Supprimer($id){
     $this -> executerRequete('DELETE FROM Image_description WHERE ImageID = ?', array($id));
